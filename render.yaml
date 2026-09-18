@@ -1,4 +1,7 @@
-# Infrastructure-as-code for the backend on Render.
+﻿# Infrastructure-as-code for the backend on Render.
+#
+# The database is hosted separately on Neon (serverless Postgres), so
+# DATABASE_URL is set manually in the dashboard rather than provisioned here.
 # The frontend deploys separately as a static site (see README > Deployment).
 services:
   - type: web
@@ -10,17 +13,10 @@ services:
     healthCheckPath: /api/health
     envVars:
       - key: DATABASE_URL
-        fromDatabase:
-          name: rfq-marketplace-db
-          property: connectionString
+        sync: false          # Neon connection string
       - key: JWT_SECRET
-        generateValue: true          # Render generates a strong secret
+        sync: false          # python -c "import secrets; print(secrets.token_urlsafe(48))"
       - key: ENVIRONMENT
         value: production
       - key: CORS_ORIGINS
-        sync: false                  # set to your deployed frontend URL
-
-databases:
-  - name: rfq-marketplace-db
-    databaseName: rfq
-    plan: free
+        sync: false          # the deployed frontend origin, no trailing slash
